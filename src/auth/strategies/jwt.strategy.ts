@@ -1,4 +1,3 @@
-// auth/strategies/jwt.strategy.ts
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
@@ -30,9 +29,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (payload.type === 'user') {
       const user = await this.usersService.findById(payload.sub);
       if (!user) {
-        throw new UnauthorizedException();
+        throw new UnauthorizedException('Usuário não encontrado');
       }
-      return { userId: user.id, email: user.email, type: 'user' };
+      return {
+        userId: user.id,
+        email: user.email,
+        type: 'user',
+      };
     } else if (payload.type === 'guest') {
       if (!payload.sessionId) {
         throw new UnauthorizedException(
@@ -44,11 +47,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         payload.sessionId,
       );
       if (!guest) {
-        throw new UnauthorizedException();
+        throw new UnauthorizedException('Sessão de convidado não encontrada');
       }
-      return { guestId: guest.id, sessionId: guest.sessionId, type: 'guest' };
+      return {
+        guestId: guest.id,
+        sessionId: guest.sessionId,
+        type: 'guest',
+      };
     }
 
-    throw new UnauthorizedException();
+    throw new UnauthorizedException('Tipo de token inválido');
   }
 }

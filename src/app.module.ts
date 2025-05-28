@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { Guest } from './users/entities/guest.entity';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { Guest } from './users/entities/guest.entity';
     }),
     AuthModule,
     UsersModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}
