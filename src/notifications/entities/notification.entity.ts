@@ -7,18 +7,20 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+// CORREÇÃO: Enums que correspondem ao frontend
 export enum NotificationType {
-  INFO = 'info',
-  SUCCESS = 'success',
+  UPDATE = 'update',
+  ANNOUNCEMENT = 'announcement',
   WARNING = 'warning',
-  ERROR = 'error',
+  MAINTENANCE = 'maintenance',
+  FEATURE = 'feature',
 }
 
 export enum NotificationPriority {
-  LOW = 1,
-  NORMAL = 2,
-  HIGH = 3,
-  URGENT = 4,
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  URGENT = 'urgent',
 }
 
 @Entity('notifications')
@@ -26,7 +28,7 @@ export class Notification {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ length: 200 })
   title: string;
 
   @Column('text')
@@ -35,28 +37,27 @@ export class Notification {
   @Column({
     type: 'enum',
     enum: NotificationType,
-    default: NotificationType.INFO,
+    default: NotificationType.ANNOUNCEMENT,
   })
   type: NotificationType;
 
   @Column({
     type: 'enum',
     enum: NotificationPriority,
-    default: NotificationPriority.NORMAL,
+    default: NotificationPriority.MEDIUM,
   })
   priority: NotificationPriority;
 
   @Column({ default: true })
   isActive: boolean;
 
-  // SOLUÇÃO 1: Tornar nullable na entidade
   @Column({ type: 'timestamp', nullable: true })
   expiresAt?: Date | null;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, length: 500 })
   actionUrl?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, length: 50 })
   actionText?: string;
 
   @CreateDateColumn()

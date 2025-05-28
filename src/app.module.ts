@@ -1,11 +1,16 @@
+// src/app.module.ts
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { NotificationsModule } from './notifications/notifications.module';
+
+// Importar todas as entidades
 import { User } from './users/entities/user.entity';
 import { Guest } from './users/entities/guest.entity';
-import { NotificationsModule } from './notifications/notifications.module';
+import { Notification } from './notifications/entities/notification.entity';
+import { UserNotification } from './notifications/entities/user-notification.entity';
 
 @Module({
   imports: [
@@ -21,8 +26,10 @@ import { NotificationsModule } from './notifications/notifications.module';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [User, Guest],
+        // CORREÇÃO: Incluir todas as entidades
+        entities: [User, Guest, Notification, UserNotification],
         synchronize: configService.get('NODE_ENV') === 'development',
+        logging: configService.get('NODE_ENV') === 'development',
       }),
       inject: [ConfigService],
     }),

@@ -148,6 +148,36 @@ export class NotificationsController {
     return this.notificationsService.findAll();
   }
 
+  // CORREÇÃO: Estatísticas das notificações (admin only) - SEM ParseIntPipe
+  @Get('admin/stats')
+  @UseGuards(AdminGuard)
+  async getStats() {
+    const allNotifications = await this.notificationsService.findAll();
+
+    const stats = {
+      total: allNotifications.length,
+      active: allNotifications.filter((n) => n.isActive).length,
+      inactive: allNotifications.filter((n) => !n.isActive).length,
+      byType: {} as Record<string, number>,
+      byPriority: {} as Record<string, number>,
+      recent: allNotifications.filter((n) => {
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return new Date(n.createdAt) > weekAgo;
+      }).length,
+    };
+
+    // Estatísticas por tipo
+    allNotifications.forEach((notification) => {
+      stats.byType[notification.type] =
+        (stats.byType[notification.type] || 0) + 1;
+      stats.byPriority[notification.priority] =
+        (stats.byPriority[notification.priority] || 0) + 1;
+    });
+
+    return stats;
+  }
+
   // Buscar notificação específica (admin only)
   @Get('admin/:id')
   @UseGuards(AdminGuard)
@@ -222,36 +252,6 @@ export class NotificationsController {
       deletedBy: req.user.email,
       deletedAt: new Date().toISOString(),
     };
-  }
-
-  // Estatísticas das notificações (admin only)
-  @Get('admin/stats')
-  @UseGuards(AdminGuard)
-  async getStats() {
-    const allNotifications = await this.notificationsService.findAll();
-
-    const stats = {
-      total: allNotifications.length,
-      active: allNotifications.filter((n) => n.isActive).length,
-      inactive: allNotifications.filter((n) => !n.isActive).length,
-      byType: {} as Record<string, number>,
-      byPriority: {} as Record<string, number>,
-      recent: allNotifications.filter((n) => {
-        const weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        return new Date(n.createdAt) > weekAgo;
-      }).length,
-    };
-
-    // Estatísticas por tipo
-    allNotifications.forEach((notification) => {
-      stats.byType[notification.type] =
-        (stats.byType[notification.type] || 0) + 1;
-      stats.byPriority[notification.priority] =
-        (stats.byPriority[notification.priority] || 0) + 1;
-    });
-
-    return stats;
   }
 
   // Broadcast: Enviar notificação para todos os usuários (admin only)
